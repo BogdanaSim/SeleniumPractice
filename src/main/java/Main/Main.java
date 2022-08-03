@@ -35,6 +35,7 @@ public class Main {
         driver.manage().window().maximize();
         driver.get("http://qa1magento.dev.evozon.com/");
         driver.findElement(By.className("skip-account")).click();
+
         Thread.sleep(3000);
         driver.quit();
     }
@@ -65,7 +66,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
         firstEx();
-        secondEx();
+       secondEx();
 
 
     }
