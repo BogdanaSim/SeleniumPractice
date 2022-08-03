@@ -18,7 +18,15 @@ import java.util.Random;
 
 public class Main {
 
-    public static void firstEx(WebDriver driver) throws InterruptedException {
+    public static void resetDriver(WebDriver driver) {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("http://qa1magento.dev.evozon.com/");
+
+    }
+
+    public static void homepage(WebDriver driver) throws InterruptedException {
+        resetDriver(driver);
         System.out.println("Title of the current page is: " + driver.getTitle());
         System.out.println("URL of the current page is: " + driver.getCurrentUrl());
         driver.findElement(By.className("logo")).click();
@@ -29,18 +37,18 @@ public class Main {
         driver.quit();
 
 
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get("http://qa1magento.dev.evozon.com/");
-        driver.findElement(By.className("skip-account")).click();
-
-        Thread.sleep(3000);
-        driver.quit();
-        driver = new ChromeDriver();
     }
 
-    public static void secondEx(WebDriver driver) throws InterruptedException {
+    public static void account(WebDriver driver) throws InterruptedException {
+        resetDriver(driver);
+        driver.findElement(By.className("skip-account")).click();
+        Thread.sleep(3000);
+        driver.quit();
+    }
 
+    public static void languages(WebDriver driver) throws InterruptedException {
+
+        resetDriver(driver);
         WebElement element = driver.findElement(By.id("select-language"));
         driver.findElement(By.id("select-language")).click();
 
@@ -49,20 +57,64 @@ public class Main {
         select.selectByIndex(1);
 
         driver.quit();
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get("http://qa1magento.dev.evozon.com/");
+
+    }
+
+    public static void search(WebDriver driver) {
+        resetDriver(driver);
         WebElement element1 = driver.findElement(By.id("search_mini_form"));
-        element = driver.findElement(By.id("search"));
+        WebElement element = driver.findElement(By.id("search"));
         element.clear();
         element.sendKeys("woman");
         element1.submit();
         driver.quit();
-        driver = new ChromeDriver();
+    }
+
+    public static void newListProducts(WebDriver driver) {
+        resetDriver(driver);
+        driver.get("http://qa2magento.dev.evozon.com/");
+        List<WebElement> list = driver.findElements(By.cssSelector(".item.last"));
+        System.out.println("Number of new products: " + list.size());
+        for (WebElement element : list) {
+            String s = element.getText().split("\n")[0];
+            System.out.println(s);
+        }
+    }
+
+    public static void navigateToPage(WebDriver driver, String pageName) throws InterruptedException {
+        List<WebElement> list = driver.findElements(By.cssSelector("li.level0"));
+        for (WebElement element : list) {
+            if (element.getText().equalsIgnoreCase(pageName)) {
+                element.click();
+                break;
+            }
+        }
+    }
+
+    public static void addProductToCart(WebDriver driver) throws InterruptedException {
+
+        resetDriver(driver);
+        WebElement hover = driver.findElement(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a"));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(hover).build().perform();
+
+        By category = By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/ul/li[3]/a");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfElementLocated(category));
+        WebElement subcategory = driver.findElement(category);
+        subcategory.click();
+        driver.findElement(By.className("product-image")).click();
+        driver.findElement(By.className("swatch-label")).click();
+        driver.findElement(By.className("option-s")).click();
+        driver.findElement(By.cssSelector("#product_addtocart_form > div.product-shop > div.product-options-bottom > div.add-to-cart > div.add-to-cart-buttons > button")).click();
+        Thread.sleep(3000);
+        driver.quit();
+
 
     }
 
-    public static void thirdExRemove(WebDriver driver) throws InterruptedException {
+    public static void removeProductFromCart(WebDriver driver) throws InterruptedException {
+        resetDriver(driver);
         Actions actions = new Actions(driver);
         WebElement hover = driver.findElement(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a"));
         actions.moveToElement(hover).build().perform();
@@ -90,11 +142,11 @@ public class Main {
         driver.findElement(By.cssSelector("#shopping-cart-table > tbody > tr.first.odd > td.a-center.product-cart-remove.last > a")).click();
         Thread.sleep(3000);
         driver.quit();
-        driver = new ChromeDriver();
 
     }
 
     public static void submitReview(WebDriver driver) {
+        resetDriver(driver);
         Actions actions = new Actions(driver);
         WebElement hover = driver.findElement(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a"));
         actions.moveToElement(hover).build().perform();
@@ -108,14 +160,13 @@ public class Main {
         List<WebElement> list = driver.findElements(By.cssSelector(".item.last"));
         WebElement elem = list.get(rand.nextInt(list.size()));
         elem.click();
-        By review=By.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[1]/form/div[3]/div[3]/div/p/a[2]");
-        if(driver.findElements(review).size()==0){
+        By review = By.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[1]/form/div[3]/div[3]/div/p/a[2]");
+        if (driver.findElements(review).size() == 0) {
             driver.findElement(By.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[2]/ul/li[3]/span")).click();
             driver.findElement(By.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[2]/dl/dd[3]/div/div/p/a")).click();
 
 
-        }
-        else{
+        } else {
             driver.findElement(review).click();
         }
         driver.findElement(By.id("Quality_1")).click();
@@ -126,53 +177,12 @@ public class Main {
         driver.findElement(By.id("nickname_field")).sendKeys("Anonymous");
         driver.findElement(By.ByXPath.xpath("/html/body/div/div/div[2]/div/div[2]/div[3]/div[3]/div/form/div[2]/button")).click();
         driver.quit();
-        driver = new ChromeDriver();
+
     }
 
-    public static void navigateToPage(WebDriver driver, String pageName) throws InterruptedException {
-        List<WebElement> list = driver.findElements(By.cssSelector("li.level0"));
-        for (WebElement element : list) {
-            if (element.getText().equalsIgnoreCase(pageName)) {
-                element.click();
-                break;
-            }
-        }
-    }
 
-    public static void thirdEx(WebDriver driver) throws InterruptedException {
-        Actions actions = new Actions(driver);
-        WebElement hover = driver.findElement(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a"));
-        actions.moveToElement(hover).build().perform();
-
-        By category = By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/ul/li[3]/a");
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.presenceOfElementLocated(category));
-        WebElement subcategory = driver.findElement(category);
-        subcategory.click();
-        driver.findElement(By.className("product-image")).click();
-        driver.findElement(By.className("swatch-label")).click();
-        driver.findElement(By.className("option-s")).click();
-        driver.findElement(By.cssSelector("#product_addtocart_form > div.product-shop > div.product-options-bottom > div.add-to-cart > div.add-to-cart-buttons > button")).click();
-        Thread.sleep(3000);
-        driver.quit();
-        driver.manage().window().maximize();
-        driver.get("http://qa1magento.dev.evozon.com/");
-        driver = new ChromeDriver();
-    }
-
-    public static void listProducts(WebDriver driver) {
-        driver.manage().window().maximize();
-        driver.get("http://qa2magento.dev.evozon.com/");
-        List<WebElement> list = driver.findElements(By.cssSelector(".item.last"));
-        System.out.println("Number of new products: " + list.size());
-        for (WebElement element : list) {
-            String s = element.getText().split("\n")[0];
-            System.out.println(s);
-        }
-    }
-
-    public static void register(WebDriver driver){
-
+    public static void register(WebDriver driver) {
+        resetDriver(driver);
         driver.findElement(By.xpath("/html/body/div/div/header/div/div[2]/div/a/span[2]")).click();
         driver.findElement(By.xpath("/html/body/div/div/header/div/div[5]/div/ul/li[5]/a")).click();
         driver.findElement(By.id("firstname")).sendKeys("MyName");
@@ -190,13 +200,16 @@ public class Main {
         WebDriver driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.get("http://qa1magento.dev.evozon.com/");
-        //firstEx(driver);
-        //secondEx(driver);
-        //    thirdEx(driver);
-        // listProducts(driver);
-        //thirdExRemove(driver);
-        //navigateToPage(driver,"Sale");
-       // submitReview(driver);
+        homepage(driver);
+        account(driver);
+        languages(driver);
+        search(driver);
+        newListProducts(driver);
+        navigateToPage(driver, "Sale");
+        addProductToCart(driver);
+        removeProductFromCart(driver);
+        submitReview(driver);
+        register(driver);
         register(driver);
     }
 }
