@@ -221,15 +221,15 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
 
-//        homepage();
-//        account();
-//        languages();
-//        search();
-//        newListProducts();
-//        navigateToPage("Sale");
-//        addProductToCart();
-//        removeProductFromCart();
-//        submitReview();
+        homepage();
+        account();
+        languages();
+        search();
+        newListProducts();
+        navigateToPage("Sale");
+        addProductToCart();
+        removeProductFromCart();
+        submitReview();
         register();
 
     }
