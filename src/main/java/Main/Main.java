@@ -44,7 +44,7 @@ public class Main {
     public static void account() throws InterruptedException {
         WebDriver driver = resetDriver();
         Thread.sleep(1000);
-        driver.findElement(By.className("skip-account")).click();
+        driver.findElement(By.cssSelector(".account-cart-wrapper a")).click();
         Thread.sleep(2000);
         driver.quit();
     }
@@ -52,8 +52,8 @@ public class Main {
     public static void languages() throws InterruptedException {
 
         WebDriver driver = resetDriver();
-        WebElement element = driver.findElement(By.id("select-language"));
-        driver.findElement(By.id("select-language")).click();
+        WebElement element = driver.findElement(By.cssSelector("select#select-language"));
+        element.click();
 
         Select select = new Select(element);
         Thread.sleep(2000);
@@ -65,8 +65,8 @@ public class Main {
 
     public static void search() throws InterruptedException {
         WebDriver driver = resetDriver();
-        WebElement element1 = driver.findElement(By.id("search_mini_form"));
-        WebElement element = driver.findElement(By.id("search"));
+        WebElement element1 = driver.findElement(By.cssSelector("form#search_mini_form"));
+        WebElement element = driver.findElement(By.cssSelector("input#search"));
         element.clear();
         Thread.sleep(2000);
         element.sendKeys("woman");
@@ -78,7 +78,7 @@ public class Main {
     public static void newListProducts() {
         WebDriver driver = resetDriver();
         driver.get("http://qa2magento.dev.evozon.com/");
-        List<WebElement> list = driver.findElements(By.cssSelector(".item.last"));
+        List<WebElement> list = driver.findElements(By.cssSelector("li.item.last"));
         System.out.println("Number of new products: " + list.size());
         System.out.println("New products: ");
         for (WebElement element : list) {
@@ -103,22 +103,26 @@ public class Main {
 
     public static void addProductToCart() throws InterruptedException {
         WebDriver driver = resetDriver();
-        WebElement hover = driver.findElement(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a"));
+        WebElement hover = driver.findElement(By.cssSelector("li.level0.nav-1.first.parent"));
+
         Actions actions = new Actions(driver);
         actions.moveToElement(hover).build().perform();
 
-        By category = By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/ul/li[3]/a");
+        By category = By.cssSelector("li.level1.nav-1-2 a.level1");
+
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.presenceOfElementLocated(category));
         WebElement subcategory = driver.findElement(category);
         subcategory.click();
-        driver.findElement(By.className("product-image")).click();
-        driver.findElement(By.className("swatch-label")).click();
-        driver.findElement(By.className("option-s")).click();
-        WebElement quantity=driver.findElement(By.id("qty"));
+        driver.findElement(By.cssSelector("ul.products-grid a.product-image")).click();
+        driver.findElement(By.cssSelector("ul#configurable_swatch_color span.swatch-label")).click();
+        driver.findElement(By.cssSelector("li.option-s span.swatch-label")).click();
+
+        WebElement quantity=driver.findElement(By.cssSelector("input#qty"));
         quantity.clear();
         quantity.sendKeys("2");
-        driver.findElement(By.cssSelector("#product_addtocart_form > div.product-shop > div.product-options-bottom > div.add-to-cart > div.add-to-cart-buttons > button")).click();
+        driver.findElement(By.cssSelector("div.add-to-cart-buttons button")).click();
+
         Thread.sleep(3000);
         driver.quit();
 
@@ -128,30 +132,35 @@ public class Main {
     public static void removeProductFromCart() throws InterruptedException {
         WebDriver driver = resetDriver();
         Actions actions = new Actions(driver);
-        WebElement hover = driver.findElement(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a"));
+        WebElement hover = driver.findElement(By.cssSelector("li.level0.nav-1.first.parent"));
         actions.moveToElement(hover).build().perform();
 
-        By category = By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/ul/li[3]/a");
+        By category = By.cssSelector("li.level1.nav-1-2 a.level1");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.presenceOfElementLocated(category));
         WebElement subcategory = driver.findElement(category);
         subcategory.click();
-        driver.findElement(By.className("product-image")).click();
-        driver.findElement(By.className("swatch-label")).click();
-        driver.findElement(By.className("option-s")).click();
-
-        driver.findElement(By.cssSelector("#product_addtocart_form > div.product-shop > div.product-options-bottom > div.add-to-cart > div.add-to-cart-buttons > button")).click();
-        WebElement hover1 = driver.findElement(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a"));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a")));
+        driver.findElement(By.cssSelector("ul.products-grid a.product-image")).click();
+        driver.findElement(By.cssSelector("ul#configurable_swatch_color span.swatch-label")).click();
+        driver.findElement(By.cssSelector("li.option-s span.swatch-label")).click();
+        WebElement quantity=driver.findElement(By.cssSelector("input#qty"));
+        quantity.clear();
+        quantity.sendKeys("2");
+        driver.findElement(By.cssSelector("div.add-to-cart-buttons button")).click();
+        WebElement hover1 = driver.findElement(By.cssSelector("li.level0.nav-1.first.parent"));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("li.level0.nav-1.first.parent")));
         actions.moveToElement(hover1).build().perform();
-        By category1 = By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/ul/li[4]/a");
+        By category1 = By.cssSelector("li.level1.nav-1-3 a.level1");
         WebElement subcategory1 = driver.findElement(category1);
         subcategory1.click();
-        driver.findElement(By.xpath("/html/body/div/div/div[2]/div/div[2]/div[2]/div[3]/ul/li[1]/a/img")).click();
-        driver.findElement(By.className("swatch-label")).click();
-        driver.findElement(By.className("option-26")).click();
-        driver.findElement(By.cssSelector("#product_addtocart_form > div.product-shop > div.product-options-bottom > div.add-to-cart > div.add-to-cart-buttons > button")).click();
-        driver.findElement(By.cssSelector("#shopping-cart-table > tbody > tr.first.odd > td.a-center.product-cart-remove.last > a")).click();
+        driver.findElement(By.cssSelector("ul.products-grid a.product-image")).click();
+        driver.findElement(By.cssSelector("ul#configurable_swatch_color span.swatch-label")).click();
+        driver.findElement(By.cssSelector("li.option-26 span.swatch-label")).click();
+        WebElement quantity1=driver.findElement(By.cssSelector("input#qty"));
+        quantity1.clear();
+        quantity1.sendKeys("3");
+        driver.findElement(By.cssSelector("div.add-to-cart-buttons button")).click();
+        driver.findElement(By.cssSelector("td.product-cart-remove a.btn-remove")).click();
         Thread.sleep(3000);
         driver.quit();
 
@@ -160,10 +169,10 @@ public class Main {
     public static void submitReview() throws InterruptedException {
         WebDriver driver = resetDriver();
         Actions actions = new Actions(driver);
-        WebElement hover = driver.findElement(By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/a"));
+        WebElement hover = driver.findElement(By.cssSelector("li.level0.nav-1.first.parent"));
         actions.moveToElement(hover).build().perform();
 
-        By category = By.xpath("/html/body/div/div/header/div/div[3]/nav/ol/li[1]/ul/li[3]/a");
+        By category = By.cssSelector("li.level1.nav-1-2 a.level1");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.presenceOfElementLocated(category));
         WebElement subcategory = driver.findElement(category);
@@ -172,22 +181,22 @@ public class Main {
         List<WebElement> list = driver.findElements(By.cssSelector(".item.last"));
         WebElement elem = list.get(rand.nextInt(list.size()));
         elem.click();
-        By review = By.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[1]/form/div[3]/div[3]/div/p/a[2]");
+        By review = By.cssSelector("div.extra-info span.separator+a");
         if (driver.findElements(review).size() == 0) {
-            driver.findElement(By.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[2]/ul/li[3]/span")).click();
-            driver.findElement(By.xpath("/html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[2]/dl/dd[3]/div/div/p/a")).click();
+            driver.findElement(By.cssSelector("ul.toggle-tabs li.last ")).click();
+            driver.findElement(By.cssSelector("p.no-rating a")).click();
 
 
         } else {
             driver.findElement(review).click();
         }
-        driver.findElement(By.id("Quality_1")).click();
-        driver.findElement(By.id("Price_1")).click();
-        driver.findElement(By.id("Value_1")).click();
-        driver.findElement(By.id("review_field")).sendKeys("Cool item");
-        driver.findElement(By.id("summary_field")).sendKeys("Awesome");
-        driver.findElement(By.id("nickname_field")).sendKeys("Anonymous");
-        driver.findElement(By.ByXPath.xpath("/html/body/div/div/div[2]/div/div[2]/div[3]/div[3]/div/form/div[2]/button")).click();
+        driver.findElement(By.cssSelector("#Quality_1")).click();
+        driver.findElement(By.cssSelector("#Price_1")).click();
+        driver.findElement(By.cssSelector("#Value_1")).click();
+        driver.findElement(By.cssSelector("#review_field")).sendKeys("Cool item");
+        driver.findElement(By.cssSelector("#summary_field")).sendKeys("Awesome");
+        driver.findElement(By.cssSelector("#nickname_field")).sendKeys("Anonymous");
+        driver.findElement(By.cssSelector(".form-add button")).click();
         Thread.sleep(3000);
         driver.quit();
 
@@ -196,14 +205,14 @@ public class Main {
 
     public static void register() throws InterruptedException {
         WebDriver driver = resetDriver();
-        driver.findElement(By.xpath("/html/body/div/div/header/div/div[2]/div/a/span[2]")).click();
-        driver.findElement(By.xpath("/html/body/div/div/header/div/div[5]/div/ul/li[5]/a")).click();
-        driver.findElement(By.id("firstname")).sendKeys("MyName");
-        driver.findElement(By.id("lastname")).sendKeys("MyLastName");
-        driver.findElement(By.id("email_address")).sendKeys("example@mail.com");
-        driver.findElement(By.id("password")).sendKeys("qawsed");
-        driver.findElement(By.id("confirmation")).sendKeys("qawsed");
-        driver.findElement(By.xpath("/html/body/div/div/div[2]/div/div/div[2]/form/div[2]/button")).click();
+        driver.findElement(By.cssSelector(".account-cart-wrapper a")).click();
+        driver.findElement(By.cssSelector("div#header-account li:nth-child(5) a")).click();
+        driver.findElement(By.cssSelector("#firstname")).sendKeys("MyName");
+        driver.findElement(By.cssSelector("#lastname")).sendKeys("MyLastName");
+        driver.findElement(By.cssSelector("#email_address")).sendKeys("example@mail.com");
+        driver.findElement(By.cssSelector("#password")).sendKeys("qawsed");
+        driver.findElement(By.cssSelector("#confirmation")).sendKeys("qawsed");
+        driver.findElement(By.cssSelector("div.buttons-set button")).click();
         Thread.sleep(2000);
         driver.quit();
 
@@ -212,15 +221,15 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
 
-        homepage();
-        account();
-        languages();
-        search();
-        newListProducts();
-        navigateToPage("Sale");
-        addProductToCart();
-        removeProductFromCart();
-        submitReview();
+//        homepage();
+//        account();
+//        languages();
+//        search();
+//        newListProducts();
+//        navigateToPage("Sale");
+//        addProductToCart();
+//        removeProductFromCart();
+//        submitReview();
         register();
 
     }
