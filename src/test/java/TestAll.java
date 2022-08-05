@@ -1,5 +1,6 @@
-package Main;
-
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,101 +11,109 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+@RunWith(JUnit4.class)
+public class TestAll {
+    private static WebDriver driver;
 
-public class Main {
-
-    public static WebDriver resetDriver() {
-        WebDriver driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get("http://qa1magento.dev.evozon.com/");
-        return driver;
+    @BeforeClass
+    public static void setDriverLocation() {
+        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
 
     }
 
 
-    public static void homepage() throws InterruptedException {
-        WebDriver driver = resetDriver();
-        System.out.println("Title of the current page is: " + driver.getTitle());
-        System.out.println("URL of the current page is: " + driver.getCurrentUrl());
+    @Before
+    public void resetDriver() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("http://qa1magento.dev.evozon.com/");
+
+
+    }
+
+    @Test
+    public void testAccount() {
+        driver.findElement(By.cssSelector(".account-cart-wrapper a")).click();
+        Assert.assertEquals(1, driver.findElements(By.cssSelector("div#header-account")).size());
+    }
+
+    @Test
+    public void testHomepage() {
+        driver.get("http://qa1magento.dev.evozon.com/");
         driver.findElement(By.className("logo")).click();
         driver.get("http://qa1magento.dev.evozon.com/women/new-arrivals.html");
         driver.navigate().back();
         driver.navigate().forward();
-        Thread.sleep(1000);
         driver.navigate().refresh();
-        Thread.sleep(1000);
-        driver.quit();
-
-
+        Assert.assertEquals("New Arrivals - Women", driver.getTitle());
     }
 
-    public static void account() throws InterruptedException {
-        WebDriver driver = resetDriver();
-        Thread.sleep(1000);
-        driver.findElement(By.cssSelector(".account-cart-wrapper a")).click();
-        Thread.sleep(2000);
-        driver.quit();
-    }
-
-    public static void languages() throws InterruptedException {
-
-        WebDriver driver = resetDriver();
+    @Test
+    public void testLanguages() {
         WebElement element = driver.findElement(By.cssSelector("select#select-language"));
-
         element.click();
-
         Select select = new Select(element);
-        System.out.println("Number of languages: "+select.getAllSelectedOptions().size());
-        Thread.sleep(2000);
         select.selectByIndex(1);
-        Thread.sleep(2000);
-        driver.quit();
-
+        element = driver.findElement(By.cssSelector("select#select-language"));
+        Select select1 = new Select(element);
+        Assert.assertEquals("French", select1.getFirstSelectedOption().getText());
     }
 
-    public static void search() throws InterruptedException {
-        WebDriver driver = resetDriver();
+
+    @Test
+    public void testSearch() {
         WebElement element1 = driver.findElement(By.cssSelector("form#search_mini_form"));
         WebElement element = driver.findElement(By.cssSelector("input#search"));
         element.clear();
-        Thread.sleep(2000);
         element.sendKeys("woman");
         element1.submit();
-        Thread.sleep(3000);
-        driver.quit();
+        List<WebElement> results = driver.findElements(By.cssSelector("ul.products-grid li.item.last"));
+//        Assert.assertEquals(driver.findElement(By.cssSelector("div.page-title h1")).getText(), "SEARCH RESULTS FOR 'WOMAN'");
+        Assert.assertTrue(results.size() > 0);
+        for (WebElement element2 : results) {
+            String s = element2.getText().split("\n")[0];
+            Assert.assertTrue(s.toLowerCase().contains("woman"));
+        }
     }
 
-    public static void newListProducts() {
-        WebDriver driver = resetDriver();
+    @Test
+    public void testNewProducts() {
         driver.get("http://qa2magento.dev.evozon.com/");
         List<WebElement> list = driver.findElements(By.cssSelector("li.item.last"));
-        System.out.println("Number of new products: " + list.size());
-        System.out.println("New products: ");
+        List<String> names = new ArrayList<>();
+        String[] array = {
+                "LINEN BLAZER", "ELIZABETH KNIT TOP", "CHELSEA TEE", "LAFAYETTE CONVERTIBLE DRESS",
+                "TORI TANK"};
         for (WebElement element : list) {
             String s = element.getText().split("\n")[0];
-            System.out.println(s);
+            names.add(s);
+
         }
-        driver.quit();
+        Assert.assertEquals(names.size(), 5);
+        Assert.assertArrayEquals(Arrays.stream(array).toArray(), array);
+
+
     }
 
-    public static void navigateToPage(String pageName) throws InterruptedException {
-        WebDriver driver = resetDriver();
+    @Test
+    public void navigateTest(){
         List<WebElement> list = driver.findElements(By.cssSelector("li.level0"));
         for (WebElement element : list) {
-            if (element.getText().equalsIgnoreCase(pageName)) {
+            if (element.getText().equalsIgnoreCase("Sale")) {
                 element.click();
-                Thread.sleep(2000);
                 break;
             }
         }
-        driver.quit();
+        Assert.assertEquals(driver.getTitle(),"Sale");
     }
 
-    public static void addProductToCart() throws InterruptedException {
-        WebDriver driver = resetDriver();
+    @Test
+    public void addProductTest(){
         WebElement hover = driver.findElement(By.cssSelector("li.level0.nav-1.first.parent"));
 
         Actions actions = new Actions(driver);
@@ -116,7 +125,10 @@ public class Main {
         wait.until(ExpectedConditions.presenceOfElementLocated(category));
         WebElement subcategory = driver.findElement(category);
         subcategory.click();
+        String product_name=driver.findElement(By.cssSelector("ul.products-grid h2.product-name")).getText();
         driver.findElement(By.cssSelector("ul.products-grid a.product-image")).click();
+
+
         driver.findElement(By.cssSelector("ul#configurable_swatch_color span.swatch-label")).click();
         driver.findElement(By.cssSelector("li.option-s span.swatch-label")).click();
 
@@ -124,15 +136,13 @@ public class Main {
         quantity.clear();
         quantity.sendKeys("2");
         driver.findElement(By.cssSelector("div.add-to-cart-buttons button")).click();
-
-        Thread.sleep(3000);
-        driver.quit();
-
+        Assert.assertEquals(product_name,driver.findElement(By.cssSelector("tbody tr:first-child h2.product-name a")).getText());
+        Assert.assertEquals("2",driver.findElement(By.cssSelector("tbody tr:first-child input.input-text.qty")).getAttribute("value"));
 
     }
 
-    public static void removeProductFromCart() throws InterruptedException {
-        WebDriver driver = resetDriver();
+    @Test
+    public void removeProduct(){
         Actions actions = new Actions(driver);
         WebElement hover = driver.findElement(By.cssSelector("li.level0.nav-1.first.parent"));
         actions.moveToElement(hover).build().perform();
@@ -142,6 +152,8 @@ public class Main {
         wait.until(ExpectedConditions.presenceOfElementLocated(category));
         WebElement subcategory = driver.findElement(category);
         subcategory.click();
+        String product_name=driver.findElement(By.cssSelector("ul.products-grid h2.product-name")).getText();
+
         driver.findElement(By.cssSelector("ul.products-grid a.product-image")).click();
         driver.findElement(By.cssSelector("ul#configurable_swatch_color span.swatch-label")).click();
         driver.findElement(By.cssSelector("li.option-s span.swatch-label")).click();
@@ -163,13 +175,12 @@ public class Main {
         quantity1.sendKeys("3");
         driver.findElement(By.cssSelector("div.add-to-cart-buttons button")).click();
         driver.findElement(By.cssSelector("td.product-cart-remove a.btn-remove")).click();
-        Thread.sleep(3000);
-        driver.quit();
+        Assert.assertNotEquals(product_name,driver.findElement(By.cssSelector("tbody tr:first-child h2.product-name a")).getText());
 
     }
 
-    public static void submitReview() throws InterruptedException {
-        WebDriver driver = resetDriver();
+    @Test
+    public void testSubmitReview(){
         Actions actions = new Actions(driver);
         WebElement hover = driver.findElement(By.cssSelector("li.level0.nav-1.first.parent"));
         actions.moveToElement(hover).build().perform();
@@ -199,14 +210,12 @@ public class Main {
         driver.findElement(By.cssSelector("#summary_field")).sendKeys("Awesome");
         driver.findElement(By.cssSelector("#nickname_field")).sendKeys("Anonymous");
         driver.findElement(By.cssSelector(".form-add button")).click();
-        Thread.sleep(3000);
-        driver.quit();
 
+        Assert.assertTrue( driver.findElement(By.cssSelector(".error-msg span")).getText().equalsIgnoreCase("Your review has been accepted for moderation."));
     }
 
-
-    public static void register() throws InterruptedException {
-        WebDriver driver = resetDriver();
+    @Test
+    public void testRegister(){
         driver.findElement(By.cssSelector(".account-cart-wrapper a")).click();
         driver.findElement(By.cssSelector("div#header-account li:nth-child(5) a")).click();
         driver.findElement(By.cssSelector("#firstname")).sendKeys("MyName");
@@ -215,24 +224,24 @@ public class Main {
         driver.findElement(By.cssSelector("#password")).sendKeys("qawsed");
         driver.findElement(By.cssSelector("#confirmation")).sendKeys("qawsed");
         driver.findElement(By.cssSelector("div.buttons-set button")).click();
-        Thread.sleep(2000);
-        driver.quit();
+        Assert.assertTrue( driver.getTitle().equalsIgnoreCase("My Account"));
+        Assert.assertTrue( driver.findElement(By.cssSelector("p.welcome-msg")).getText().equalsIgnoreCase("Welcome, MyName MyLastName!"));
+    }
+
+    @Test
+    public void checkLogIn(){
+        driver.findElement(By.cssSelector(".account-cart-wrapper a")).click();
+        driver.findElement(By.cssSelector("div#header-account li:last-child a")).click();
+        driver.findElement(By.cssSelector("#email")).sendKeys("example@mail.com");
+        driver.findElement(By.cssSelector("#pass")).sendKeys("qawsed");
+        driver.findElement(By.cssSelector("#send2")).click();
+        Assert.assertTrue( driver.getTitle().equalsIgnoreCase("My Account"));
+        Assert.assertTrue( driver.findElement(By.cssSelector("p.welcome-msg")).getText().equalsIgnoreCase("Welcome, MyName MyLastName!"));
 
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
-
-        homepage();
-        account();
-        languages();
-        search();
-        newListProducts();
-        navigateToPage("Sale");
-        addProductToCart();
-        removeProductFromCart();
-        submitReview();
-        register();
-
+    @After
+    public void quitPage() {
+        driver.quit();
     }
 }
